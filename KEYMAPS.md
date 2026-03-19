@@ -52,6 +52,14 @@ Current setup uses `blink.cmp`.
 - `<leader>bo` - Delete other buffers
 - `<leader>bD` - Delete buffer and window
 
+## Clipboard
+
+System clipboard is intentionally opt-in in this setup.
+
+- `y` / `d` / `x` - Stay local unless you use a leader clipboard mapping
+- `<leader>y` - Yank to system clipboard
+- `<leader>d` - Delete to system clipboard
+
 ## Windows
 
 - `<C-h>` / `<C-j>` / `<C-k>` / `<C-l>` - Move between windows
@@ -90,3 +98,25 @@ Current setup uses `blink.cmp`.
 - `<leader>uF` - Force format toggle
 - `<leader>uh` - Toggle inlay hints
 
+## Yanky
+
+This is the yank/paste layer LazyVim uses for better register history and paste behavior.
+
+- `y` - Yank text into the local yank ring
+- `p` - Put text after the cursor
+- `P` - Put text before the cursor
+- `gp` - Put text after selection
+- `gP` - Put text before selection
+- `[y` - Cycle forward through yank history
+- `]y` - Cycle backward through yank history
+- `]p` - Put indented after cursor, linewise
+- `[p` - Put indented before cursor, linewise
+- `]P` - Put indented after cursor, linewise
+- `[P` - Put indented before cursor, linewise
+- `>p` - Put and indent right
+- `<p` - Put and indent left
+- `>P` - Put before and indent right
+- `<P` - Put before and indent left
+- `=p` - Put after applying a filter
+- `=P` - Put before applying a filter
+- `<leader>p` - Open yank history picker
