@@ -8,6 +8,7 @@ return {
       opts.picker.sources.explorer = vim.tbl_deep_extend("force", opts.picker.sources.explorer or {}, {
         hidden = true,
         ignored = true,
+        layout = { preset = "right" },
       })
 
       opts.picker.sources.files = vim.tbl_deep_extend("force", opts.picker.sources.files or {}, {
