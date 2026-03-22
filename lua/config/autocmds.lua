@@ -114,13 +114,58 @@ local function refresh_snacks_explorer()
   })
 end
 
+local function is_snacks_explorer_buf(buf)
+  local ok_picker, picker_api = pcall(require, "snacks.picker")
+  if not ok_picker then
+    return false
+  end
+
+  for _, picker in ipairs(picker_api.get({ source = "explorer", tab = false })) do
+    local list_buf = picker.list and picker.list.win and picker.list.win.buf
+    local preview_buf = picker.preview and picker.preview.win and picker.preview.win.buf
+    local input_buf = picker.input and picker.input.win and picker.input.win.buf
+    if buf == list_buf or buf == preview_buf or buf == input_buf then
+      return true
+    end
+  end
+
+  return false
+end
+
+local function select_tmux_pane(direction)
+  if not vim.env.TMUX then
+    return false
+  end
+
+  vim.fn.system({ "tmux", "select-pane", direction })
+  return vim.v.shell_error == 0
+end
+
 vim.api.nvim_create_autocmd("FileType", {
-  pattern = "snacks_picker_list",
+  pattern = { "snacks_picker_list", "snacks_picker_preview" },
   callback = function(ev)
-    vim.keymap.set("n", "u", refresh_snacks_explorer, {
-      buffer = ev.buf,
-      silent = true,
-      desc = "Refresh Explorer",
-    })
+    vim.schedule(function()
+      if not vim.api.nvim_buf_is_valid(ev.buf) or not is_snacks_explorer_buf(ev.buf) then
+        return
+      end
+
+      if ev.match == "snacks_picker_list" then
+        vim.keymap.set("n", "u", refresh_snacks_explorer, {
+          buffer = ev.buf,
+          silent = true,
+          desc = "Refresh Explorer",
+        })
+      end
+
+      vim.keymap.set("n", "<C-l>", function()
+        if not select_tmux_pane("-R") then
+          vim.cmd("wincmd l")
+        end
+      end, {
+        buffer = ev.buf,
+        silent = true,
+        desc = "Right tmux pane",
+      })
+    end)
   end,
 })
