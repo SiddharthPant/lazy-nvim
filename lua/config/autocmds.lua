@@ -85,3 +85,42 @@ end
 vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter", "WinEnter", "FileType", "VimEnter", "DirChanged" }, {
   callback = set_winbar,
 })
+
+local function refresh_snacks_explorer()
+  local ok_picker, picker_api = pcall(require, "snacks.picker")
+  if not ok_picker then
+    return
+  end
+
+  local picker = picker_api.get({ source = "explorer", tab = false })[1]
+  if not picker then
+    return
+  end
+
+  local ok_actions, explorer_actions = pcall(require, "snacks.explorer.actions")
+  local ok_git, explorer_git = pcall(require, "snacks.explorer.git")
+  if not (ok_actions and ok_git) then
+    return
+  end
+
+  explorer_git.update(picker:cwd(), {
+    force = true,
+    untracked = picker.opts.git_untracked,
+    on_update = function()
+      if not picker.closed then
+        explorer_actions.update(picker, { refresh = true })
+      end
+    end,
+  })
+end
+
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "snacks_picker_list",
+  callback = function(ev)
+    vim.keymap.set("n", "u", refresh_snacks_explorer, {
+      buffer = ev.buf,
+      silent = true,
+      desc = "Refresh Explorer",
+    })
+  end,
+})
