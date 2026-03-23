@@ -86,34 +86,6 @@ vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter", "WinEnter", "FileType",
   callback = set_winbar,
 })
 
-local function refresh_snacks_explorer()
-  local ok_picker, picker_api = pcall(require, "snacks.picker")
-  if not ok_picker then
-    return
-  end
-
-  local picker = picker_api.get({ source = "explorer", tab = false })[1]
-  if not picker then
-    return
-  end
-
-  local ok_actions, explorer_actions = pcall(require, "snacks.explorer.actions")
-  local ok_git, explorer_git = pcall(require, "snacks.explorer.git")
-  if not (ok_actions and ok_git) then
-    return
-  end
-
-  explorer_git.update(picker:cwd(), {
-    force = true,
-    untracked = picker.opts.git_untracked,
-    on_update = function()
-      if not picker.closed then
-        explorer_actions.update(picker, { refresh = true })
-      end
-    end,
-  })
-end
-
 local function is_snacks_explorer_buf(buf)
   local ok_picker, picker_api = pcall(require, "snacks.picker")
   if not ok_picker then
@@ -147,14 +119,6 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.schedule(function()
       if not vim.api.nvim_buf_is_valid(ev.buf) or not is_snacks_explorer_buf(ev.buf) then
         return
-      end
-
-      if ev.match == "snacks_picker_list" then
-        vim.keymap.set("n", "u", refresh_snacks_explorer, {
-          buffer = ev.buf,
-          silent = true,
-          desc = "Refresh Explorer",
-        })
       end
 
       vim.keymap.set("n", "<C-l>", function()
